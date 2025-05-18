@@ -9,6 +9,7 @@ A Docker image providing a ready-to-use Scala 3 development environment. Ideal a
 * **Core tools**: `curl`, `wget`, `git` (with LFS), `make`, `gcc`/`g++`, `nano` (with syntax highlighting), `postgresql-client`, Python 3, etc.
 * **Docker CLI & Compose** (via host socket)
 * **kubectl** (latest stable) + bash completion + `k` alias
+* **Node.js v22** (with npm)
 * **Java 21 JDK**
 * **Scala 3.7.0** (`scala` on `$PATH`)
 * **sbt 1.10.11** (`sbt` on `$PATH`)
@@ -53,7 +54,7 @@ A Docker image providing a ready-to-use Scala 3 development environment. Ideal a
      scala-dev:3.7.0
    ```
 
-2. If you’re using Docker-Desktop’s Kubernetes, edit the `server:` entries in that config:
+2. If you're using Docker-Desktop's Kubernetes, edit the `server:` entries in that config:
 
    ```yaml
    clusters:
@@ -103,7 +104,7 @@ Place this in `.devcontainer/devcontainer.json`:
     9994,
     5432
   ],
-  "initializeCommand": "docker network inspect devnetwork >/dev/null 2>&1 || docker network create devnetwork",
+  "initializeCommand": "docker network inspect devnetwork >/dev/null 2>&1 || docker network create devnetwork 2>/dev/null || true",
   "runArgs": [
     "--network=devnetwork",
     "--add-host=host.docker.internal:host-gateway",
@@ -113,6 +114,7 @@ Place this in `.devcontainer/devcontainer.json`:
   "postCreateCommand": "node /workspace/.devcontainer/setup-workspace.mjs && ln -sf /workspace/dev.code-workspace /home/scaladev/.vscode-server/dev.code-workspace",
   "remoteUser": "scaladev",
   "containerEnv": {
+    "NODE_OPTIONS": "",
     "HOST_WORKSPACE": "${localWorkspaceFolder}"
   }
 }
@@ -120,10 +122,65 @@ Place this in `.devcontainer/devcontainer.json`:
 
 ### What you get
 
-* **Docker inside**: mount `/var/run/docker.sock` and use all Docker-CLI & Compose commands
+* **Docker inside**: mount docker.sock and use all Docker-CLI & Compose commands
 * **Kubernetes inside**: mount your `~/.kube/config` and hit any cluster (adjust `server:` to `docker-for-desktop` or `desktop-control-plane`)
 * **Port forwarding**: map your common dev ports (Scala apps, Keycloak, Postgres, WildFly…)
 * **Custom init**: create networks, run setup scripts, link workspaces
+
+### Setup Workspace Script
+
+The DevContainer configuration references a setup script (setup-workspace.mjs) that automatically configures a VS Code multi-root workspace. Place this file in your .devcontainer directory:
+
+```javascript
+import fs from "fs";
+import path from "path";
+
+// Workspace file path
+const workspaceFilePath = "/workspace/dev.code-workspace";
+
+// Ensure the directory for the workspace file exists
+const dirPath = path.dirname(workspaceFilePath);
+if (!fs.existsSync(dirPath)) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+// Define the workspace configuration
+const workspaceConfig = {
+  folders: [
+    {
+      name: "DevContainer Workspace",
+      path: "/workspace"
+    },
+    {
+      name: "Host Workspace",
+      path: "/host_workspace"
+    },
+    {
+      name: "Demos",
+      path: "/host_workspace/demos"
+    },
+    {
+      name: "Scratchpad",
+      path: "/host_workspace/scratchpad"
+    },
+  ],
+  settings: {}
+};
+
+// Write the workspace file
+fs.writeFileSync(workspaceFilePath, JSON.stringify(workspaceConfig, null, 2));
+console.log(`Workspace file created: ${workspaceFilePath}`);
+```
+
+This script:
+
+* Creates a VS Code workspace file that organizes your development environment
+* Defines multiple workspace folders for different aspects of your project
+* Links both container paths (workspace) and host-mounted paths (host_workspace)
+* Simplifies navigation between different parts of your codebase
+* Can be customized to add more folders, VS Code settings, or extensions
+
+The workspace configuration is activated automatically when the container starts through the `postCreateCommand` in devcontainer.json.
 
 ## Customization
 
