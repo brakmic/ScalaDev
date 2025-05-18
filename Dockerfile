@@ -74,7 +74,7 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 RUN wget https://github.com/scala/scala3/releases/download/${SCALA_VERSION}/scala3-${SCALA_VERSION}-x86_64-pc-linux.tar.gz \
   -O /tmp/scala.tar.gz \
   && tar -xzf /tmp/scala.tar.gz -C /opt \
-  && ln -s /opt/scala3-${SCALA_VERSION} /opt/scala \
+  && ln -s /opt/scala3-${SCALA_VERSION}-x86_64-pc-linux /opt/scala \
   && rm /tmp/scala.tar.gz
 
 ENV PATH="/opt/scala/bin:$PATH"
