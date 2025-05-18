@@ -86,6 +86,22 @@ RUN wget https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_
  && tar -xzf /tmp/sbt.tgz -C /opt \
  && ln -s /opt/sbt/bin/sbt /usr/local/bin/sbt \
  && rm /tmp/sbt.tgz
+
+###############################################################################
+# (4.1) Ammonite REPL and Mill Build Tool
+###############################################################################
+ENV AMMONITE_VERSION=3.0.2
+ENV MILL_VERSION=0.12.11
+
+# Ammonite installation - installing for Scala 3
+RUN curl -L https://github.com/com-lihaoyi/Ammonite/releases/download/${AMMONITE_VERSION}/3.3-${AMMONITE_VERSION} \
+    -o /usr/local/bin/amm && \
+    chmod +x /usr/local/bin/amm
+
+# Mill installation
+RUN curl -L https://github.com/com-lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION} \
+    -o /usr/local/bin/mill && \
+    chmod +x /usr/local/bin/mill
  
  ###############################################################################
  # (5) Install Node.js via NVM for JavaScript scripting support
