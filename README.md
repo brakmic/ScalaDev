@@ -13,6 +13,8 @@ A Docker image providing a ready-to-use Scala 3 development environment. Ideal a
 * **Java 21 JDK**
 * **Scala 3.7.0** (`scala` on `$PATH`)
 * **sbt 1.10.11** (`sbt` on `$PATH`)
+* **Ammonite 3.0.2** (Enhanced Scala REPL with syntax highlighting and improved functionality)
+* **Mill 0.12.11** (Modern Scala build tool with simple API)
 
 ## Quick Usage
 
@@ -182,10 +184,81 @@ This script:
 
 The workspace configuration is activated automatically when the container starts through the `postCreateCommand` in devcontainer.json.
 
+## Using Ammonite and Mill
+
+### Ammonite REPL
+
+Ammonite provides an enhanced Scala REPL experience with features like syntax highlighting, multi-line editing, and improved imports.
+
+Start the REPL:
+
+```bash
+amm
+```
+
+Run a Scala script:
+
+```bash
+amm my-script.sc
+```
+
+Ammonite offers many advantages over the standard Scala REPL:
+
+* Syntax highlighting in the console
+* Multi-line editing support
+* Better error messages
+* Easy imports and package management
+* Script execution with dependencies
+
+Learn more at [Ammonite documentation](https://ammonite.io/).
+
+### Mill Build Tool
+
+Mill is a build tool designed for simplicity and flexibility with builds written in Scala.
+
+Create a new Mill project:
+
+```bash
+mkdir my-project && cd my-project
+cat > build.sc << EOF
+import mill._, scalalib._
+
+object main extends ScalaModule {
+  def scalaVersion = "3.7.0"
+}
+EOF
+```
+
+Common Mill commands:
+
+```bash
+# Compile the project
+mill main.compile
+
+# Run tests
+mill main.test
+
+# Run the main method
+mill main.run
+
+# Package as a JAR file
+mill main.assembly
+```
+
+Mill offers several advantages over other build tools:
+
+* Fast incremental compilation
+* Builds are written in Scala
+* Simple, intuitive API
+* Built-in dependency management
+* Excellent integration with IntelliJ IDEA
+
+Learn more at [Mill documentation](https://mill-build.org/mill/scalalib/intro.html).
+
 ## Customization
 
 * Override **SCALA_VERSION**, **SBT_VERSION**, **NONROOT_USER** with `--build-arg`
-* Extend this image in your own `Dockerfile` (`FROM scala-dev:3.7.0`) to add tools or services
+* Extend this image in your own Dockerfile (`FROM scala-dev:3.7.0`) to add tools or services
 
 ## License
 
