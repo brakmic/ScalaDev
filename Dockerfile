@@ -86,10 +86,36 @@ RUN wget https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_
  && tar -xzf /tmp/sbt.tgz -C /opt \
  && ln -s /opt/sbt/bin/sbt /usr/local/bin/sbt \
  && rm /tmp/sbt.tgz
+ 
+ ###############################################################################
+ # (5) Install Node.js via NVM for JavaScript scripting support
+ ###############################################################################
+ ENV NVM_DIR=/usr/local/nvm
+ ENV NVM_VERSION=0.40.3
+ ENV NODE_VERSION=22.2.0
+
+ # Create NVM dir first, then install Node via NVM
+ RUN mkdir -p $NVM_DIR && \
+     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash && \
+     . "$NVM_DIR/nvm.sh" && \
+     export NVM_DIR=$NVM_DIR && \
+     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
+     nvm install $NODE_VERSION && \
+     nvm use $NODE_VERSION && \
+     nvm alias default $NODE_VERSION && \
+     npm install -g tsx typescript
+
+ # Persist NVM in shell for all future sessions
+ RUN printf "export NVM_DIR=%s\n" "$NVM_DIR" >> /etc/profile.d/nvm.sh && \
+     printf '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"\n' >> /etc/profile.d/nvm.sh && \
+     printf "export PATH=\$NVM_DIR/versions/node/v%s/bin:\$PATH\n" "$NODE_VERSION" >> /etc/profile.d/nvm.sh && \
+     chmod +x /etc/profile.d/nvm.sh
+
+ ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 
 ###############################################################################
-# (5) Final
+# (6) Final
 ###############################################################################
 USER ${NONROOT_USER}
 WORKDIR /workspace
