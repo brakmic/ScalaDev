@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && chmod 0440 /etc/sudoers.d/${NONROOT_USER} \
   && cp /etc/skel/.bash* ${HOME}/ \
   && printf "include /usr/share/nano-syntax/*.nanorc\nexport EDITOR=nano\n" >> ${HOME}/.nanorc \
-  && printf "alias ll='ls -la'\nalias la='ls -A'\n..." >> ${HOME}/.bash_aliases \
+  && printf "alias ll='ls -la'\nalias la='ls -A'\n" >> ${HOME}/.bash_aliases \
   && chown -R ${NONROOT_USER}:${NONROOT_USER} ${HOME}
 
 ###############################################################################
